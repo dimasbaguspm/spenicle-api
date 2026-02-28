@@ -25,8 +25,11 @@ import {
 } from "./transaction-template-update-drawer";
 import { TransactionTemplateViewDrawer } from "./transaction-template-view-drawer";
 import { TransactionsAllTheTimeDrawer } from "./transactions-all-the-time-drawer";
+import { TransactionsFilterDrawer } from "./transactions-filter-drawer/transactions-filter-drawer";
 import { AccountComparisonDrawer } from "./account-comparison-drawer";
 import { CategoryComparisonDrawer } from "./category-comparison-drawer";
+import { AccountSelectMultipleDrawer } from "./account-select-multiple-drawer/account-select-multiple-drawer";
+import { CategorySelectMultipleDrawer } from "./category-select-multiple-drawer/category-select-multiple-drawer";
 import { BudgetCreateDrawer } from "./budget-create-drawer";
 import { BudgetUpdateDrawer } from "./budget-update-drawer";
 import { BudgetGeneratedUpdateDrawer } from "./budget-generated-update-drawer";
@@ -143,6 +146,9 @@ export const DrawerRouter = () => {
       {is(DRAWER_ROUTES.TRANSACTIONS_ALL_THE_TIME) && (
         <TransactionsAllTheTimeDrawer />
       )}
+      {is(DRAWER_ROUTES.TRANSACTIONS_FILTER) && (
+        <TransactionsFilterDrawer payload={state?.payload} />
+      )}
 
       {/** Budget */}
       {is(DRAWER_ROUTES.BUDGET_CREATE) && (
@@ -196,6 +202,30 @@ export const DrawerRouter = () => {
         hasState("returnToDrawer") &&
         hasParam("payloadId") && (
           <TransactionSelectSingleDrawer
+            payloadId={params.payloadId!}
+            payload={state.payload!}
+            returnToDrawer={state.returnToDrawer!}
+            returnToDrawerId={state.returnToDrawerId!}
+          />
+        )}
+
+      {/** Filters - Multi-select */}
+      {is(DRAWER_ROUTES.SELECT_MULTIPLE_ACCOUNTS) &&
+        hasState("payload") &&
+        hasState("returnToDrawer") &&
+        hasParam("payloadId") && (
+          <AccountSelectMultipleDrawer
+            payloadId={params.payloadId!}
+            payload={state.payload!}
+            returnToDrawer={state.returnToDrawer!}
+            returnToDrawerId={state.returnToDrawerId!}
+          />
+        )}
+      {is(DRAWER_ROUTES.SELECT_MULTIPLE_CATEGORIES) &&
+        hasState("payload") &&
+        hasState("returnToDrawer") &&
+        hasParam("payloadId") && (
+          <CategorySelectMultipleDrawer
             payloadId={params.payloadId!}
             payload={state.payload!}
             returnToDrawer={state.returnToDrawer!}

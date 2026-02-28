@@ -2,7 +2,7 @@ import { useApiTransactionsInfiniteQuery } from "@/hooks/use-api";
 import { useDrawerProvider } from "@/providers/drawer-provider";
 import type { TransactionModel } from "@/types/schemas";
 import { DRAWER_ROUTES } from "@/constant/drawer-routes";
-import { NoResults, PageContent, PageLoader } from "@dimasbaguspm/versaur";
+import { Badge, BadgeGroup, Button, ButtonGroup, Icon, NoResults, PageContent, PageLoader } from "@dimasbaguspm/versaur";
 import { useTransactionFilter } from "@/hooks/use-filter-state";
 import { TransactionsViewTable } from "./components/transactions-view-table";
 
@@ -10,7 +10,7 @@ import { useCallback, useMemo } from "react";
 import type { TableColumn } from "@/ui/transactions-virtual-table-base";
 import { uniqBy } from "lodash";
 import { When } from "@/lib/when";
-import { SearchXIcon } from "lucide-react";
+import {  FilterIcon, SearchXIcon } from "lucide-react";
 
 const VIEW_MODE_COLUMNS: TableColumn[] = [
   { key: "date", label: "Date", width: 120, align: "left" as const },
@@ -42,6 +42,8 @@ const TransactionsGridPage = () => {
     sortBy: "date",
     sortOrder: "desc",
     type: filters.appliedFilters.type,
+    accountId: filters.appliedFilters.accountIds,
+    categoryId: filters.appliedFilters.categoryIds,
   });
 
   const uniqueTransactions = useMemo(
@@ -58,6 +60,17 @@ const TransactionsGridPage = () => {
     [openDrawer],
   );
 
+  const handleOpenFilterDrawer = useCallback(() => {
+    openDrawer(DRAWER_ROUTES.TRANSACTIONS_FILTER);
+  }, [openDrawer]);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.appliedFilters.accountIds?.length) count += 1;
+    if (filters.appliedFilters.categoryIds?.length) count += 1;
+    return count;
+  }, [filters.appliedFilters.accountIds, filters.appliedFilters.categoryIds]);
+
   return (
     <PageContent
       size="wide"
@@ -67,6 +80,22 @@ const TransactionsGridPage = () => {
         <PageLoader />
       </When>
       <When condition={!isPending}>
+        <ButtonGroup hasMargin>
+          <Button
+            variant="outline"
+            onClick={handleOpenFilterDrawer}
+          >
+            <Icon as={FilterIcon} color="inherit" size="sm" />
+             Filters
+          </Button>
+        </ButtonGroup>
+        <When condition={activeFilterCount > 0}>
+          <BadgeGroup hasMargin>
+            <Badge>
+              {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
+            </Badge>
+          </BadgeGroup>
+        </When>
         <When condition={!uniqueTransactions.length}>
           <NoResults
             icon={SearchXIcon}
@@ -75,7 +104,7 @@ const TransactionsGridPage = () => {
           />
         </When>
         <When condition={uniqueTransactions.length}>
-          <div className="grid h-[calc(100dvh-200px)] h-max-screen min-h-0 grid-rows-1">
+          <div className="grid h-max-screen min-h-0 grid-rows-1">
             <div className="min-h-0 overflow-hidden">
               <TransactionsViewTable
                 transactions={uniqueTransactions}
